@@ -1,0 +1,27 @@
+﻿@model List<MariamProject.Models.PhoneNumber>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Phone Number ID</th>
+            <th>Number</th>
+            <th>Edit</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var phoneNumber in Model)
+        {
+            <tr>
+                <td>@phoneNumber.PhoneNumberId</td>
+                <td>@phoneNumber.Number</td>
+                <td>
+                    <button class="btn btn-primary btn-sm"
+                            ng-if="!phonenumber.editing"
+                            ng-click="openEditPhoneNumberModal(@phoneNumber.PhoneNumberId, '@phoneNumber.Number', @phoneNumber.DeviceId)">
+                        Edit
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

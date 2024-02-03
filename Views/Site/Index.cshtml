@@ -1,0 +1,84 @@
+﻿@model List<MariamProject.Models.Site>
+<!DOCTYPE html>
+<html ng-app="siteApp">
+
+<head>
+    <title>Site Management</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap-tpls.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../MYSTYLES/forall.css">
+    <script src="../MYSCRIPTS/Site.js"></script>
+</head>
+
+<body ng-controller="SiteController">
+    <div class="row">
+        <div class="col-md-6">
+            <form action="@Url.Action("Index", "Site")" method="get">
+                <div class="input-group">
+                    <input type="text" name="searchText" class="form-control" placeholder="Text to search for">
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" id="searchbutton" type="submit">Search</button>
+                    </span>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <button class="btn btn-success" ng-click="openAddSiteModal()">Add Site</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Site ID</th>
+                <th>Site Name</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var site in Model)
+            {
+                <tr>
+                    <td>
+                        @site.SiteId
+                    </td>
+                    <td>@site.SiteName</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" ng-if="!site.editing" ng-click="openEditSiteModal(@site.SiteId, '@site.SiteName')">Edit</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+
+    <script type="text/ng-template" id="addEditSiteModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">{{ modalTitle }}</h3>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label for="zonrName">Site Name</label>
+                    <input type="text" id="siteName" class="form-control" ng-model="modalSite.name" required>
+                </div>
+                <p class="text-danger" ng-show="showEmptyNameError">Name cannot be empty.</p>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" ng-click="save()">Save</button>
+        </div>
+    </script>
+
+</body>
+
+</html>

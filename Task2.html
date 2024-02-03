@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html ng-app="deviceApp">
+
+    <head>
+        <title>Device Management</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap-tpls.min.js"></script>
+        <style>
+            body {
+                margin: 5%;
+                background-color: rgb(206, 228, 249);
+            }
+
+            .table {
+                margin-top: 5%;
+                background-color: #81e4fd;
+                box-shadow: 0px 0px 9px rgba(102, 141, 208, 0.9);
+            }
+
+            thead {
+                background-color: #3eb5d3;
+                font-size: large;
+            }
+        </style>
+    </head>
+
+    <body ng-controller="DeviceController">
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" ng-model="searchText" class="form-control" placeholder="Text to search for">
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" ng-click="search()">Search</button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <button class="btn btn-success" ng-click="openAddDeviceModal()">Add Device</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Device ID</th>
+                    <th>Device Name</th>
+                    <th>Edit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="device in filteredDevices">
+                    <td>{{ device.id }}</td>
+                    <td>
+                        <span ng-if="device.editing">
+                            <input type="text" ng-model="device.editedName" class="form-control">
+                            <button class="btn btn-success btn-sm" ng-click="saveEdit(device)">OK</button>
+                            <button class="btn btn-danger btn-sm" ng-click="cancelEdit(device)">Cancel</button>
+                        </span>
+                        <span ng-if="!device.editing">{{ device.name }}</span>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" ng-if="!device.editing"
+                            ng-click="openEditDeviceModal(device)">Edit</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <script type="text/ng-template" id="addEditDeviceModal.html">
+            <div class="modal-header">
+                <h3 class="modal-title">{{ modalTitle }}</h3>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="deviceName">Device Name</label>
+                        <input type="text" id="deviceName" class="form-control" ng-model="modalDevice.name">
+                    </div>
+                    <p class="text-danger" ng-show="showEmptyNameError">Name cannot be empty.</p>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+                <button class="btn btn-primary" ng-click="save()">Save</button>
+            </div>
+        </script>
+
+
+        <script>
+                angular.module('deviceApp', ['ui.bootstrap']).controller('DeviceController', ['$scope', '$uibModal', function ($scope, $uibModal) {
+                    $scope.ListOfDevices = [];
+                    $scope.filteredDevices = [];
+                    $scope.showEmptyNameError = false;
+
+                    $scope.search = function () {
+                        const searchTerm = $scope.searchText.toLowerCase();
+                        $scope.filteredDevices = $scope.ListOfDevices.filter(device =>
+                            device.name.toLowerCase().includes(searchTerm)
+                        );
+                    };
+
+                    $scope.cancelEdit = function (device) {
+                        device.editing = false;
+                    };
+
+                    $scope.openAddDeviceModal = function () {
+                        $scope.modalTitle = 'Add Device';
+                        $scope.modalDevice = {
+                            name: ''
+                        };
+
+                        var modalInstance = $uibModal.open({
+                            templateUrl: 'addEditDeviceModal.html',
+                            controller: 'AddEditDeviceModalController',
+                            scope: $scope
+                        });
+
+                        modalInstance.result.then(function (resultDevice) {
+                            $scope.ListOfDevices.push(resultDevice);
+                            $scope.filteredDevices.push(resultDevice);
+                        });
+                    };
+
+                    $scope.openEditDeviceModal = function (device) {
+                        $scope.modalTitle = 'Edit Device';
+                        $scope.modalDevice = angular.copy(device);
+
+                        var modalInstance = $uibModal.open({
+                            templateUrl: 'addEditDeviceModal.html',
+                            controller: 'AddEditDeviceModalController',
+                            scope: $scope
+                        });
+
+                        modalInstance.result.then(function (resultDevice) {
+                            device.name = resultDevice.name;
+                        });
+                    };
+                }]);
+
+                angular.module('deviceApp').controller('AddEditDeviceModalController', ['$scope', '$uibModalInstance', function ($scope, $uibModalInstance) {
+                    $scope.cancel = function () {
+                        $uibModalInstance.dismiss('cancel');
+                    };
+
+                    $scope.save = function () {
+                        if ($scope.modalDevice.name.trim() !== '') {
+                            $uibModalInstance.close($scope.modalDevice);
+                        }else{
+                            $scope.showEmptyNameError = true;
+                        }
+                    };
+                }]);
+
+        </script>
+    </body>
+
+</html>

@@ -1,0 +1,76 @@
+﻿@model List<MariamProject.Models.PhoneNumberReport>
+<html>
+<head>
+    <title>Report</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap-tpls.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../MYSTYLES/forall.css">
+    <style>
+        td {
+            border-right: 1px solid white;
+            padding: 8px;
+        }
+
+        .merge-cells {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="row">
+        <div class="col-md-6">
+            <form action="@Url.Action("Index", "PhoneNumberReport")" method="get">
+                <div class="input-group">
+                    <select name="searchType" class="form-control">
+                        <option value="" selected>All Types</option>
+                        <option value="1">Reserved</option>
+                        <option value="2">Unreserved</option>
+                    </select>
+                    <input type="text" name="searchText" class="form-control" placeholder="Text to search for">
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" id="searchbutton" type="submit">Search</button>
+                    </span>
+                </div>
+            </form>
+
+
+
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Device</th>
+                <th>Status</th>
+                <th># of Phone Numbers</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td rowspan="2" class="merge-cells">@item.DeviceName</td>
+                    @if (Request.QueryString["searchType"] == "1" || (Request.QueryString["searchType"] != "1" && Request.QueryString["searchType"] != "2"))
+                    {
+                        <td>Reserved</td>
+                        <td>
+                            @item.NumberOfPhoneNumbersReserved
+                        </td>
+                    }
+                </tr>
+                <tr>
+                    @if (Request.QueryString["searchType"] == "2" || (Request.QueryString["searchType"] != "1" && Request.QueryString["searchType"] != "2"))
+                    {
+                        <td>Unreserved</td>
+                        <td>@item.NumberOfPhoneNumbersUnReserved</td>
+                    }
+                </tr>
+            }
+        </tbody>
+
+    </table>
+</body>
+</html>
+
+

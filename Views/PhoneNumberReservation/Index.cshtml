@@ -1,0 +1,77 @@
+﻿@model List<MariamProject.Models.PhoneNumberReservation>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reservations</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap-tpls.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../MYSTYLES/forall.css">
+</head>
+<body ng-app="reservationApp" ng-controller="reservationController">
+
+    <h1>Reservations</h1>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Reservation ID</th>
+                <th>Client Name</th>
+                <th>Phone Number</th>
+                <th>BED</th>
+                <th>EED</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="reservation in paginatedReservations">
+                <td>{{ reservation.ReservationID }}</td>
+                <td>{{ reservation.ClientName }}</td>
+                <td>{{ reservation.Number }}</td>
+                <td>{{ reservation.BED | customDate }}</td>
+                <td>{{ reservation.EED | customDate }}</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <uib-pagination total-items="filteredReservations.length"
+                    ng-model="currentPage"
+                    max-size="5"
+                    items-per-page="5"
+                    boundary-links="true">
+    </uib-pagination>
+
+    <script>
+            angular.module('reservationApp', ['ui.bootstrap'])
+                .filter('customDate', function () {
+                    return function (input) {
+                        if (input) {
+                            var date = new Date(parseInt(input.substr(6)));
+                            return date.toISOString().substring(0, 10); 
+                        } else {
+                            return '';
+                        }
+                    };
+                })
+                .controller('reservationController', function ($scope) {
+                    $scope.reservations = @Html.Raw(Json.Encode(Model));
+                    $scope.currentPage = 1;
+                    $scope.itemsPerPage = 5;
+                    $scope.numPages = function () {
+                        return Math.ceil($scope.filteredReservations.length / $scope.itemsPerPage);
+                    };
+                    $scope.$watch('currentPage', function () {
+                        var begin = (($scope.currentPage - 1) * $scope.itemsPerPage);
+                        var end = begin + $scope.itemsPerPage;
+                        $scope.paginatedReservations = $scope.filteredReservations.slice(begin, end);
+                    });
+                    $scope.$watch('reservations', function () {
+                        $scope.filteredReservations = $scope.reservations;
+                        $scope.currentPage = 1;
+                    });
+                });
+
+    </script>
+
+</body>
+</html>

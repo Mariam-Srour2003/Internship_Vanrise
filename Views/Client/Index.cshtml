@@ -1,0 +1,190 @@
+﻿@model List<MariamProject.Models.Client>
+
+<!DOCTYPE html>
+<html ng-app="clientApp">
+
+<head>
+    <title>Client Management</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap-tpls.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../MYSTYLES/forall.css">
+</head>
+
+<body ng-controller="ClientController">
+
+    <div class="row">
+
+        <div class="col-md-6">
+            <form action="@Url.Action("Index", "Client")" method="get">
+                <div class="input-group">
+                    <select name="searchType" class="form-control" >
+                        <option value="">All Types</option>
+                        <option value="1">Individual</option>
+                        <option value="2">Organization</option>
+                    </select>
+                    <input type="text" name="searchText" class="form-control" placeholder="Text to search for">
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" id="searchbutton" type="submit">Search</button>
+                    </span>
+                </div>
+            </form>
+
+
+
+        </div>
+
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <button class="btn btn-success" ng-click="openAddClientModal()">Add Client</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Client ID</th>
+                <th>Client Name</th>
+                <th>Client Type</th>
+                <th>Client Birthday</th>
+                <th>Zone</th>
+                <th>Edit</th>
+                <th>Reserve</th>
+                <th>UnReserve</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var client in Model)
+            {
+                <tr ng-init="client.isPanelOpen = false">
+                    <td>
+                        <a href="#" ng-click="client.isPanelOpen = !client.isPanelOpen">
+                            <i class="glyphicon" ng-class="{'glyphicon-chevron-right': !client.isPanelOpen, 'glyphicon-chevron-down': client.isPanelOpen}" id="arrow-@client.ClientId"></i>
+                        </a>
+                        @client.ClientId
+                    </td>
+                    <td>@client.ClientName</td>
+                    <td>@client.ClientType</td>
+                    <td>@(client.ClientBirthday.HasValue ? client.ClientBirthday.Value.ToString("yyyy-MM-dd") : "")</td>
+                    <td>@client.ZoneName</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" ng-if="!client.editing" ng-click="openEditClientModal(@client.ClientId, '@client.ClientName', @client.ClientType, '@client.ClientBirthday', @client.ZoneId, @client.SiteId)">Edit</button>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" ng-if="!client.editing" ng-click="openReservationClientModal(@client.ClientId, '@client.ClientName')">Reserve</button>
+                    </td>
+                    <td>
+                        @if (ViewBag.ReservationsCount.ContainsKey(client.ClientId) && ViewBag.ReservationsCount[client.ClientId] > 0)
+                        {
+                            <button class="btn btn-primary btn-sm" ng-if="!client.editing" ng-click="openUnReservationClientModal(@client.ClientId, '@client.ClientName')">UnReserve</button>
+                        }
+                    </td>
+                </tr>
+                <tr ng-show="client.isPanelOpen">
+                    <td colspan="8">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                @Html.Action("GetPhoneNumbersReservations", "PhoneNumberReservation", new { searchText = "", searchClientId = @client.ClientId })
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <script type="text/ng-template" id="addEditClientModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">{{ modalTitle }}</h3>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label for="clientName">Client Name</label>
+                    <input type="text" id="clientName" class="form-control" ng-model="modalClient.name" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientType">Client Type</label>
+                    <select id="clientType" class="form-control" ng-model="modalClient.type" required>
+                        <option value="1">Individual</option>
+                        <option value="2">Organization</option>
+                    </select>
+                </div>
+                <div>
+                    <zone-selector sent-object="scopeModel.zoneSelector" ng-model="modalClient.ZoneName"></zone-selector>
+                </div>
+
+                <div>
+                    <site-selector sent-object="scopeModel.siteSelector"
+                                   selected-zone-id="selectedZoneIds"
+                                   sites="sites"
+                                   ng-model="modalClient.SiteName"></site-selector>
+                </div>
+                <div class="form-group" ng-if="modalClient.type === '1'">
+                    <label for="clientBirthday">Client Birthday</label>
+                    <input type="date" id="clientBirthday" class="form-control" ng-model="modalClient.birthday" required>
+                    <div ng-show="calculateAge(modalClient.birthday) < 18" class="text-danger">
+                        Age must be greater than 18.
+                    </div>
+                </div>
+
+                <p class="text-danger" ng-show="showFormatDateError">Date Formate is Wrong</p>
+                <p class="text-danger" ng-show="showEmptyNameError">Name cannot be empty.</p>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" ng-click="save()">Save</button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="ReservationClientModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Reservation</h3>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label for="phonenumberSelector">Phone Number</label>
+                    <select id="phonenumberSelector" class="form-control" ng-model="modalClient.phonenumberId" ng-options="phonenumber.PhoneNumberId as phonenumber.Number for phonenumber in unreservedphonenumbers">
+                        <option value="">Select a phone number</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" ng-click="save()">Save</button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="UnReservationClientModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">UnReservation</h3>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label for="phonenumberSelector">phonenumber</label>
+                    <select id="phonenumberSelector" class="form-control" ng-model="modalClient.phonenumberId" ng-options="phonenumber.PhoneNumberId as phonenumber.Number for phonenumber in reservedPhoneNumbers">
+                        <option value="">Select a phonenumber</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" ng-click="save()">Save</button>
+        </div>
+    </script>
+
+    <script src="../MYSCRIPTS/Client.js"></script>
+
+
+</body>
+
+</html>
+
+

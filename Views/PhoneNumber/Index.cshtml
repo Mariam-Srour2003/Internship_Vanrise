@@ -1,0 +1,88 @@
+﻿@model List<MariamProject.Models.PhoneNumber>
+<!DOCTYPE html>
+<html ng-app="phonenumberApp">
+
+<head>
+    <title>Phone Number Management</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap-tpls.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../MYSTYLES/forall.css">
+
+</head>
+
+<body ng-controller="PhoneNumberController">
+    <div class="row">
+        <div class="col-md-6">
+            <form id="searchForm" action="/PhoneNumber" method="get">
+                <div class="input-group">
+                    <select id="deviceSelect" class="form-control" ng-model="modalPhoneNumberr.deviceId" ng-options="device.DeviceId as device.DeviceName for device in devices">
+                        <option value="">Select a device</option>
+                    </select>
+                    <input type="text" id="searchText" class="form-control" placeholder="Text to search for">
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" id="searchbutton" type="submit">Search</button>
+                    </span>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <button class="btn btn-success" ng-click="openAddPhoneNumberModal()">Add Phone Number</button>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <table id="TablePhoneNumbers" class="table table-striped">
+        <thead>
+            <tr>
+                <th>PhoneNumber ID</th>
+                <th>PhoneNumber</th>
+                <th>Device Name</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var phonenumber in Model)
+            {
+                <tr>
+                    <td>@phonenumber.PhoneNumberId</td>
+                    <td>@phonenumber.Number</td>
+                    <td>@phonenumber.DeviceName</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" ng-if="!phonenumber.editing" ng-click="openEditPhoneNumberModal(@phonenumber.PhoneNumberId, @phonenumber.Number, @phonenumber.DeviceId)">Edit</button>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+    <called sent-object="scopeModel.PhoneNumberTable"></called>
+
+    <script type="text/ng-template" id="addEditPhoneNumberModal.html">
+        <div type="text/ng-template" class="modal-header">
+            <h3 class="modal-title">{{ modalTitle }}</h3>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label for="phonenumberNumber">Phone Number</label>
+                    <input type="text" id="phonenumberNumber" class="form-control" ng-model="modalPhoneNumber.number" required>
+                </div>
+                <device-selector sent-object="scopeModel.deviceSelector"></device-selector>
+
+                <p class="text-danger" ng-show="showEmptyNumberError">Number cannot be empty.</p>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" ng-click="save()">Save</button>
+        </div>
+    </script>
+    <script src="../MYSCRIPTS/PhoneNumber.js"></script>
+
+</body>
+
+</html>

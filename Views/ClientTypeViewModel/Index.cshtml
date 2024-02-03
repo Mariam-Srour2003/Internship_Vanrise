@@ -1,0 +1,49 @@
+﻿@model List<MariamProject.Models.ClientTypeViewModel>
+<!DOCTYPE html>
+<html ng-app="CTVMApp">
+
+<head>
+    <title>Device Management</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap-tpls.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../MYSTYLES/forall.css">
+</head>
+
+<body ng-controller="ClientTypeViewController">
+    <div class="row">
+        <div class="col-md-6">
+            <form action="@Url.Action("Index", "ClientTypeViewModel")" method="get">
+                <div class="input-group">
+                    <select name="searchType" class="form-control">
+                        <option value="0">All Types</option>
+                        <option value="1">Individual</option>
+                        <option value="2">Organization</option>
+                    </select>
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" id="searchbutton" type="submit">Search</button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>No of Clients</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ClientTypeViewModel in Model)
+            {
+                <tr>
+                    <td>@ClientTypeViewModel.Type</td>
+                    <td>@ClientTypeViewModel.TotalClients</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</body>
+
+</html>

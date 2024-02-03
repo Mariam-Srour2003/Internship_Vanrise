@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body{
+                align-items: center;
+                margin: 5%;
+            }
+            #Upper_Grid{
+                display: grid;
+                grid-template-columns: auto auto auto auto;
+            }
+            button{
+                height: 30px;
+                width: 100px;
+                margin-left: 20px;
+            }
+            #Title_Devices_Grid{
+                display: grid;
+                grid-template-columns: auto auto;
+            }
+            table{
+                width: 90%;
+                text-align: center;
+            }
+        </style>
+
+    </head>
+    <body>
+        <!-- this is the grid to add or search for a device -->
+        <div id="Upper_Grid">
+            <input type="text" id="Search_Input" placeholder="Text to search for">
+            <button id="Search_Button">Search</button>
+            <input type="text" id="Name_Input" placeholder="Name to add">
+            <button id="Add_Button">Add Device</button>
+            <p id="Red_Note"></p>
+        </div>
+        <!-- this is the table where the devices are listed  -->
+        <table id="deviceTable">
+            <thead>
+                <tr>
+                    <th><h1>Device ID</h1></th>
+                    <th><h1>Device Name</h1></th>
+                </tr>
+            </thead>
+            <tbody id="Devices_Grid"> </tbody>
+        </table>
+
+        
+        <script>
+            // list of devices
+            const ListOfDevices =[];
+            const DevicesGrid = document.getElementById('Devices_Grid');
+            //get the text in the search of input text type
+            const Search_for = document.getElementById('Search_Input');
+            //get the button which is when clicked the event Listener will search for text
+            const search_button = document.getElementById('Search_Button');
+            //get the text in the search of input text type                
+            const NameToAdd = document.getElementById('Name_Input');
+            //get the button which is when clicked the event Listener will add device
+            const Add_button = document.getElementById('Add_Button');
+
+            // This Function list all the devices in the grid 
+            function renderDeviceList(devices) {
+                DevicesGrid.innerHTML = '';
+                devices.forEach(device => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = ` <td><h3>${device.id}</h3></td> <td><h3>${device.name}</h3></td>`;
+                    DevicesGrid.appendChild(row);
+                });
+            }
+
+            // when the search button is clicked get the text then search in names
+            //to lower case used to ignore text lower or upper case by making all lower
+            search_button.addEventListener('click', () => {
+                const searchTerm = Search_for.value.toLowerCase();
+                const filteredDevices = ListOfDevices.filter(device => device.name.toLowerCase().includes(searchTerm));
+                renderDeviceList(filteredDevices);
+            });
+
+            // when the Add button is clicked get the text which is name of new devide 
+            //then add it to the list of names 
+            Add_button.addEventListener('click', () => {
+                const newName = NameToAdd.value.trim();
+                if (newName !== '') {
+                    const newDevice = {
+                        id: ListOfDevices.length + 1,
+                        name: newName,
+                    };
+                    ListOfDevices.push(newDevice);
+                    renderDeviceList(ListOfDevices);
+                    NameToAdd.value = '';
+                }
+            });
+
+        </script>
+    </body>
+</html>

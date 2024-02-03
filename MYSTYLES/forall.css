@@ -1,0 +1,18 @@
+﻿body {
+    background-color: rgb(206, 228, 249);
+}
+
+.table {
+    margin-top: 5%;
+    background-color: #81e4fd;
+    box-shadow: 0px 0px 9px rgba(102, 141, 208, 0.9);
+}
+
+thead {
+    background-color: #3eb5d3;
+    font-size: large;
+}
+
+#searchbutton {
+    margin-left: -255px;
+}

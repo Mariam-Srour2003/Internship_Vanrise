@@ -1,0 +1,109 @@
+﻿@model List<MariamProject.Models.Device>
+<!DOCTYPE html>
+<html ng-app="deviceApp">
+
+<head>
+    <title>Device Management</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap-tpls.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../MYSTYLES/forall.css">
+    <script src="../MYSCRIPTS/Device.js"></script>
+</head>
+
+<body ng-controller="DeviceController">
+    <div class="row">
+        <div class="col-md-6">
+            <form action="@Url.Action("Index", "Device")" method="get">
+                <div class="input-group">
+                    <input type="text" name="searchText" class="form-control" placeholder="Text to search for">
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" id="searchbutton" type="submit">Search</button>
+                    </span>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <button class="btn btn-success" ng-click="openAddDeviceModal()">Add Device</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Device ID</th>
+                <th>Device Name</th>
+                <th>Zone Name</th>
+                <th>Site Name</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var device in Model)
+            {
+                <tr ng-init="device.isPanelOpen = false">
+                    <td>
+                        <a href="#" ng-click="device.isPanelOpen = !device.isPanelOpen">
+                            <i class="glyphicon" ng-class="{'glyphicon-chevron-right': !device.isPanelOpen, 'glyphicon-chevron-down': client.isPanelOpen}" id="arrow-@device.DeviceId"></i>
+                        </a>
+                        @device.DeviceId
+                    </td>
+                    <td>@device.DeviceName</td>
+                    <td>@device.ZoneName</td>
+                    <td>@device.SiteName</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" ng-if="!device.editing" ng-click="openEditDeviceModal(@device.DeviceId, '@device.DeviceName','@device.ZoneName','@device.SiteName')">Edit</button>
+                    </td>
+                </tr>
+                <tr ng-show="device.isPanelOpen">
+                    <td colspan="5">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                @Html.Action("GetPhoneNumbers", "PhoneNumber", new { searchText = "", searchDeviceId = @device.DeviceId })
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+
+    <script type="text/ng-template" id="addEditDeviceModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">{{ modalTitle }}</h3>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label for="zonrName">Device Name</label>
+                    <input type="text" id="deviceName" class="form-control" ng-model="modalDevice.name" required>
+                </div>
+                <p class="text-danger" ng-show="showEmptyNameError">Name cannot be empty.</p>
+            </form>
+            <div>
+                <zone-selector sent-object="scopeModel.zoneSelector" ng-model="modalDevice.ZoneName"></zone-selector>
+            </div>
+
+            <div>
+                <site-selector sent-object="scopeModel.siteSelector"
+                               selected-zone-id="selectedZoneIds"
+                               sites="sites"
+                               ng-model="modalDevice.SiteName"></site-selector>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" ng-click="save()">Save</button>
+        </div>
+    </script>
+
+</body>
+
+</html>

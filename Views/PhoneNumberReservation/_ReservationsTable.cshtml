@@ -1,0 +1,25 @@
+﻿@model List<MariamProject.Models.PhoneNumberReservation>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Reservation ID</th>
+            <th>Phone Number ID</th>
+            <th>Phone Number</th>
+            <th>BED</th>
+            <th>EED</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var reservation in Model)
+        {
+            <tr>
+                <td>@reservation.ReservationID</td>
+                <td>@reservation.PhoneNumberID</td>
+                <td>@reservation.Number</td>
+                <td>@(reservation.BED.ToString("yyyy-MM-dd"))</td>
+                <td>@(reservation.EED.HasValue ? reservation.EED.Value.ToString("yyyy-MM-dd") : "-")</td>
+            </tr>
+        }
+    </tbody>
+</table>
